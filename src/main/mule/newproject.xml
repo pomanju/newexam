@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="f013f285-e5f0-4244-b9ef-20e1e8f90aec" >
+		<http:listener-connection host="0.0.0.0" port="${http.port}" />
+	</http:listener-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="58f1834e-3ef5-474a-879a-4de44a5bc4ae" file="dev.properties" />
+	<flow name="newprojectFlow" doc:id="0e6c78a4-63a0-4299-a5d1-20c7d77e4e7f" >
+		<http:listener doc:name="Listener" doc:id="cf7c3a01-8ce8-4ae5-9123-ca136d55209f" config-ref="HTTP_Listener_config" path="/demoClass4"/>
+		<ee:transform doc:name="Transform Message" doc:id="f146a178-ae73-446e-bb16-1fc210263fb7" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="name" ><![CDATA[%dw 2.0
+output application/json
+---
+
+message.attributes.queryParams.company
+]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="Flow Reference" doc:id="3ec7a83e-72dd-46c3-842f-b83cfbc96f43" name="newprojectFlow1"/>
+		<logger level="INFO" doc:name="Logger" doc:id="264ee2df-f384-486d-bfdb-887ad3ef61ec" message="#[payload]"/>
+	</flow>
+	<flow name="newprojectFlow1" doc:id="e8f97b59-76b2-4ddc-becc-b4d2dccab5ab" >
+		<ee:transform doc:name="Transform Message" doc:id="b5e4efb2-38d3-4707-8ea6-9abf4fc8d394" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	(p('message')): payload.name ++ " You are a "++ payload.role ++ " working for " ++ vars.name
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
